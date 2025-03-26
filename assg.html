@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="style.css" rel="stylesheet">
+    <link href="stylesheet.css" rel="stylesheet">
     <title>Multi-Functional Webpage</title>
+    
 </head>
-<body>
+<body class="light-mode">
     <h1>Multi-Functional Webpage</h1>
-    <button onclick="toggleMode()">Toggle Dark/Neon Mode</button>
+    <div>
+        <button onclick="setMode('light-mode')">Light Mode</button>
+        <button onclick="setMode('dark-mode')">Dark Mode</button>
+        <button onclick="setMode('neon-mode')">Neon Mode</button>
+        <button onclick="setMode('custom-mode')">Customize</button>
+    </div>
 
     <div class="container">
         <div class="box">
@@ -49,31 +55,9 @@
         }
         setInterval(updateClock, 1000);
 
-        function toggleMode() {
-            let body = document.body;
-            if (body.classList.contains("light-mode")) {
-                body.classList.remove("light-mode");
-                body.classList.add("neon-mode");
-            } else if (body.classList.contains("neon-mode")) {
-                body.classList.remove("neon-mode");
-            } else {
-                body.classList.add("light-mode");
-            }
+        function setMode(mode) {
+            document.body.className = mode;
         }
-
-        let alarmTime = null;
-        function setAlarm() {
-            alarmTime = document.getElementById("alarmTime").value;
-            document.getElementById("alarmStatus").innerText = "Alarm set for " + alarmTime;
-        }
-        setInterval(() => {
-            let now = new Date();
-            let currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            if (alarmTime === currentTime) {
-                alert("Alarm ringing!");
-                alarmTime = null;
-            }
-        }, 1000);
 
         let stopwatchInterval, seconds = 0, minutes = 0, hours = 0;
         function startStopwatch() {
@@ -83,9 +67,7 @@
                     if (seconds == 60) { seconds = 0; minutes++; }
                     if (minutes == 60) { minutes = 0; hours++; }
                     document.getElementById("stopwatch").innerText = 
-                        String(hours).padStart(2, '0') + ":" + 
-                        String(minutes).padStart(2, '0') + ":" + 
-                        String(seconds).padStart(2, '0');
+                        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 }, 1000);
             }
         }
@@ -109,8 +91,7 @@
                     if (countdownTime > 0) {
                         countdownTime--;
                         document.getElementById("countdownDisplay").innerText = 
-                            String(Math.floor(countdownTime / 60)).padStart(2, '0') + ":" + 
-                            String(countdownTime % 60).padStart(2, '0');
+                            `${String(Math.floor(countdownTime / 60)).padStart(2, '0')}:${String(countdownTime % 60).padStart(2, '0')}`;
                     } else {
                         clearInterval(countdownInterval);
                         alert("Countdown finished!");
@@ -123,6 +104,20 @@
             document.getElementById("countdownDisplay").innerText = "00:00";
             document.getElementById("countdownTime").value = "";
         }
+
+        let alarmTime = null;
+        function setAlarm() {
+            alarmTime = document.getElementById("alarmTime").value;
+            document.getElementById("alarmStatus").innerText = "Alarm set for " + alarmTime;
+        }
+        setInterval(() => {
+            let now = new Date();
+            let currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            if (alarmTime === currentTime) {
+                alert("Alarm ringing!");
+                alarmTime = null;
+            }
+        }, 1000);
     </script>
 </body>
 </html>
