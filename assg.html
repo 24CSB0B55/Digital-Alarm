@@ -2,288 +2,127 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="stylesheet.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;700&display=swap" rel="stylesheet">
-   
+	<link href="style.css" rel="stylesheet">
+    <title>Multi-Functional Webpage</title>
 </head>
-<body onload="startTime()">
-    <div class="con">
-        <div class="items">
-    <button class="btn" onclick="toggleTheme()">Toggle Dark Mode</button>
-    <button class="btn" onclick="toggleTheme()">Toggle Neon Mode</button>
-    </div>
-</div>
+<body>
+    <h1>Multi-Functional Webpage</h1>
+    <button onclick="toggleMode()">Toggle Dark/Neon Mode</button>
+
     <div class="container">
-        <h3><u>PRESENT-TIME</u></h3>
-        <p id="text" class="sub"></p>
-        
-    </div>
-    <div class="container">
-       <h3><u>ALARM</u></h3>
-		<div class="time" id="time">
-			00:00:00
-		</div>
-		<div class="input-row">
-			<div class="input-field">
-				<label for="alarmDate">
-					Select Date:
-				</label>
-				<input type="date"
-					id="alarmDate"
-					class="alarm-input"
-					min="">
-			</div>
-			<div class="input-field">
-				<label for="alarmTime">
-					Select Time:
-				</label>
-				<input type="time" id="alarmTime"
-					class="alarm-input">
-			</div>
-			<button id="setAlarm">
-				Set Alarm
-			</button>
-		</div>
-		<div class="alarms" id="alarms">
-		</div>
-    </div>
-    <div class="container">
-        <h3>TODAY's DATE</h3>
-        <p id="cur" class="sub"></p>
-        
-    </div>
-    <div class="container1">
-        <h3>STOP-WATCH</h3>
-        <div id="time">
-            <span class="digit" id="hr">
-                00</span>
-            <span class="txt">Hr</span>
-            <span class="digit" id="min">
-                00</span>
-            <span class="txt">Min</span>
-            <span class="digit" id="sec">
-                00</span>
-            <span class="txt">Sec</span>
-            <span class="digit" id="count">
-                00</span>
+        <div class="box">
+            <h2>Date & Time</h2>
+            <p id="date"></p>
+            <p id="clock"></p>
         </div>
-        <div id="buttons">
-            <button class="btn1" id="start">
-                Start</button>
-            <button class="btn1" id="stop">
-                Stop</button>
-            <button class="btn1" id="reset">
-                Reset</button>
+
+        <div class="box">
+            <h2>Stopwatch</h2>
+            <p id="stopwatch">00:00:00</p>
+            <button onclick="startStopwatch()">Start</button>
+            <button onclick="stopStopwatch()">Stop</button>
+            <button onclick="resetStopwatch()">Reset</button>
+        </div>
+
+        <div class="box">
+            <h2>Countdown Timer</h2>
+            <input type="number" id="countdownTime" placeholder="Seconds">
+            <button onclick="startCountdown()">Start</button>
+            <button onclick="resetCountdown()">Reset</button>
+            <p id="countdownDisplay">00:00</p>
+        </div>
+
+        <div class="box">
+            <h2>Alarm</h2>
+            <input type="time" id="alarmTime">
+            <button onclick="setAlarm()">Set Alarm</button>
+            <p id="alarmStatus"></p>
         </div>
     </div>
-    </div>
+
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ?'dark':'light');
-            document.body.classList.toggle('neon-mode');
-            localStorage.setItem('theme', document.body.classList.contains('neon-mode') ='neon');
+        function updateClock() {
+            let now = new Date();
+            document.getElementById("clock").innerText = now.toLocaleTimeString();
+            document.getElementById("date").innerText = now.toDateString();
         }
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-        }
-        if (localStorage.getItem('theme') === 'neon') {
-            document.body.classList.add('neon-mode');
-        }
-        let time = document.getElementById("time");
-let dateInput = document.getElementById("alarmDate");
-let tInput = document.getElementById("alarmTime");
-let btn = document.getElementById("setAlarm");
-let contan = document.getElementById("alarms");
-let interVal;
-let maxValue = 3;
-let cnt = 0;
-let almTimesArray = [];
-function timeChangeFunction() {
-	let curr = new Date();
-	let hrs = curr.getHours();
-	let min = String(curr.getMinutes()).padStart(2, "0");
-	let sec = String(curr.getSeconds()).padStart(2, "0");
-	let period = "AM";
-	if (hrs >= 12) {
-		period = "PM";
-		if (hrs > 12) {
-			hrs -= 12;
-		}
-	}
-	hrs = String(hrs).padStart(2, "0");
-	time.textContent = `${hrs}:${min}:${sec} ${period}`;
-}
-function alarmSetFunction() {
-	let now = new Date();
-	let selectedDate = new Date(dateInput.value + "T" + tInput.value);
-	if (selectedDate <= now) {
-		alert(`Invalid time. Please select 
-	a future date and time.`);
-		return;
-	}
-	if (almTimesArray.includes(selectedDate.toString())) {
-		alert(`You cannot set multiple 
-	alarms for the same time.`);
-		return;
-	}
-	if (cnt < maxValue) {
-		let timeUntilAlarm = selectedDate - now;
-		let alarmDiv = document.createElement("div");
-		alarmDiv.classList.add("alarm");
-		alarmDiv.innerHTML = `
-			<span>
-			${selectedDate.toLocaleString()}
-			</span>
-			<button class="delete-alarm">
-			Delete
-			</button>
-		`;
-		alarmDiv
-			.querySelector(".delete-alarm")
-			.addEventListener("click", () => {
-				alarmDiv.remove();
-				cnt--;
-				clearTimeout(interVal);
-				const idx = almTimesArray.indexOf(selectedDate.toString());
-				if (idx !== -1) {
-					almTimesArray.splice(idx, 1);
-				}
-			});
-		interVal = setTimeout(() => {
-			alert("Time to wake up!");
-			alarmDiv.remove();
-			cnt--;
-			const alarmIndex = almTimesArray.indexOf(selectedDate.toString());
-			if (alarmIndex !== -1) {
-				almTimesArray.splice(alarmIndex, 1);
-			}
-		}, timeUntilAlarm);
-		contan.appendChild(alarmDiv);
-		cnt++;
-		almTimesArray.push(selectedDate.toString());
-	} else {
-		alert("You can only set a maximum of 3 alarms.");
-	}
-}
-function showAlarmFunction() {
-	let alarms = contan.querySelectorAll(".alarm");
-	alarms.forEach((alarm) => {
-		let deleteButton = alarm.querySelector(".delete-alarm");
-		deleteButton.addEventListener("click", () => {
-			alarmDiv.remove();
-			cnt--;
-			clearTimeout(interVal);
-			const alarmIndex = almTimesArray.indexOf(selectedDate.toString());
-			if (alarmIndex !== -1) {
-				almTimesArray.splice(alarmIndex, 1);
-			}
-		});
-	});
-}
-showAlarmFunction();
-setInterval(timeChangeFunction, 1000);
-btn.addEventListener("click", alarmSetFunction);
-timeChangeFunction();
+        setInterval(updateClock, 1000);
 
-        function startTime() {
-  const today = new Date();
-  let h = today.getHours();
-  let m = today.getMinutes();
-  let s = today.getSeconds();
-  m = checkTime(m);
-  s = checkTime(s);
-  document.getElementById('text').innerHTML =  h + ":" + m + ":" + s;
-  setTimeout(startTime, 1000);
-}
-
-function checkTime(i) {
-  if (i < 10) {i = "0" + i}; 
-  return i;
-}
- const dat=new Date();
- document.getElementById('cur').innerHTML=dat;
- let startBtn = document.getElementById('start');
-let stopBtn = document.getElementById('stop');
-let resetBtn = document.getElementById('reset');
-
-let hour = 0o0;
-let minute = 0o0;
-let second = 0o0;
-let count = 0o0;
-
-startBtn.addEventListener('click', function () {
-    timer = true;
-    stopWatch();
-});
-
-stopBtn.addEventListener('click', function () {
-    timer = false;
-});
-
-resetBtn.addEventListener('click', function () {
-    timer = false;
-    hour = 0;
-    minute = 0;
-    second = 0;
-    count = 0;
-    document.getElementById('hr').innerHTML = "00";
-    document.getElementById('min').innerHTML = "00";
-    document.getElementById('sec').innerHTML = "00";
-    document.getElementById('count').innerHTML = "00";
-});
-
-function stopWatch() {
-    if (timer) {
-        count++;
-
-        if (count == 100) {
-            second++;
-            count = 0;
+        function toggleMode() {
+            let body = document.body;
+            if (body.classList.contains("light-mode")) {
+                body.classList.remove("light-mode");
+                body.classList.add("neon-mode");
+            } else if (body.classList.contains("neon-mode")) {
+                body.classList.remove("neon-mode");
+            } else {
+                body.classList.add("light-mode");
+            }
         }
 
-        if (second == 60) {
-            minute++;
-            second = 0;
+        let alarmTime = null;
+        function setAlarm() {
+            alarmTime = document.getElementById("alarmTime").value;
+            document.getElementById("alarmStatus").innerText = "Alarm set for " + alarmTime;
+        }
+        setInterval(() => {
+            let now = new Date();
+            let currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            if (alarmTime === currentTime) {
+                alert("Alarm ringing!");
+                alarmTime = null;
+            }
+        }, 1000);
+
+        let stopwatchInterval, seconds = 0, minutes = 0, hours = 0;
+        function startStopwatch() {
+            if (!stopwatchInterval) {
+                stopwatchInterval = setInterval(() => {
+                    seconds++;
+                    if (seconds == 60) { seconds = 0; minutes++; }
+                    if (minutes == 60) { minutes = 0; hours++; }
+                    document.getElementById("stopwatch").innerText = 
+                        String(hours).padStart(2, '0') + ":" + 
+                        String(minutes).padStart(2, '0') + ":" + 
+                        String(seconds).padStart(2, '0');
+                }, 1000);
+            }
+        }
+        function stopStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+        }
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+            seconds = minutes = hours = 0;
+            document.getElementById("stopwatch").innerText = "00:00:00";
         }
 
-        if (minute == 60) {
-            hour++;
-            minute = 0;
-            second = 0;
+        let countdownInterval, countdownTime;
+        function startCountdown() {
+            countdownTime = document.getElementById("countdownTime").value;
+            if (countdownTime > 0) {
+                clearInterval(countdownInterval);
+                countdownInterval = setInterval(() => {
+                    if (countdownTime > 0) {
+                        countdownTime--;
+                        document.getElementById("countdownDisplay").innerText = 
+                            String(Math.floor(countdownTime / 60)).padStart(2, '0') + ":" + 
+                            String(countdownTime % 60).padStart(2, '0');
+                    } else {
+                        clearInterval(countdownInterval);
+                        alert("Countdown finished!");
+                    }
+                }, 1000);
+            }
         }
-
-        let hrString = hour;
-        let minString = minute;
-        let secString = second;
-        let countString = count;
-
-        if (hour < 10) {
-            hrString = "0" + hrString;
+        function resetCountdown() {
+            clearInterval(countdownInterval);
+            document.getElementById("countdownDisplay").innerText = "00:00";
+            document.getElementById("countdownTime").value = "";
         }
-
-        if (minute < 10) {
-            minString = "0" + minString;
-        }
-
-        if (second < 10) {
-            secString = "0" + secString;
-        }
-
-        if (count < 10) {
-            countString = "0" + countString;
-        }
-
-        document.getElementById('hr').innerHTML = hrString;
-        document.getElementById('min').innerHTML = minString;
-        document.getElementById('sec').innerHTML = secString;
-        document.getElementById('count').innerHTML = countString;
-        setTimeout(stopWatch, 10);
-    }
-}
-
-</script>
-        </body>   
-        </html>
+    </script>
+</body>
+</html>
